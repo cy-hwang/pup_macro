@@ -1,4 +1,8 @@
 import puppeteer from 'puppeteer';
+import axios from 'axios';
+
+const PAGE = 'https://novelpia.com';
+const TITLE_CODE = '1234';
 
 async function connection() {
 	const browser = await puppeteer.launch({
@@ -6,8 +10,28 @@ async function connection() {
 		defaultViewport: null,
 		devtools: true,
 	});
+
+	// 1. 로그인
+	// POST 요청하기 http://www.google.com
+	const params = new URLSearchParams();
+	params.append('email', EMAIL);
+	params.append('wd', WD);
+	const result = await axios.post(`${PAGE}/proc/login`, params);
+	console.log(result);
+
+	// 2. 로그인 세팅 상태로 메인페이지 접속
 	const page = await browser.newPage();
-	await page.goto('https://novelpia.com/viewer/520863');
+	// USERKEY=; LOGINKEY=; 쿠키 추가
+	await page.goto(PAGE);
+
+	// cookie 확인
+
+	// 2. 로그인
+
+	return [browser, page];
+}
+
+async function getTargetList(page) {
 	/**
 	 * novel_drawing element 하위의
 	 * <font id="line_2" class="line">&nbsp;&nbsp;&nbsp; </font  font 엘레멘트들에 대해
@@ -32,4 +56,10 @@ async function connection() {
 	await browser.close();
 }
 
-connection();
+(async () => {
+	const [browser, page] = await connection();
+
+	await getTargetList(page);
+
+	await browser.close();
+})();
